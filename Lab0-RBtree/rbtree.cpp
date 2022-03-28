@@ -269,13 +269,13 @@ Nodo* RBtree::ubicarSucesor(Nodo* & n) {
 
 // Modificación del BST delete para RBTs
 // La idea es retornar el nodo que se va a eliminar
-Nodo* RBtree::eliminarBST(Nodo* & v, int d) {
+Nodo* RBtree::eliminarBST(Nodo* & n, int d) {
     
     // Primero ubicar el nodo
-    Nodo* v = buscarNodo(root, d);
+    Nodo* v = buscarNodo(n, d);
 
     // si el nodo no existe, no hay nada más que hacer
-    if (v == nullptr) return;
+    if (v == nullptr) return v;
     // si el nodo es una hoja, retornar el nodo
     if (v->left == nullptr && v->right == nullptr) return v;
     // si tiene que ser reemplazado, ubicar su sucesor (u)
