@@ -397,22 +397,28 @@ void RBtree::identificarCaso(Nodo* & n) {
     //==========================
     // CASO 6:
     // El "sobrino" lejano es de color rojo
-        else if (pos = DERECHA && (hermano->left)->color == RED) {
-            sobrinoLejano = hermano->left;
-            std::swap(hermano->color, (n->father)->color);
-            rotarDerecha(n->father);
-            n->color = BLACK;
-            sobrinoLejano->color = BLACK;
-        }
+        // En el caso que esté a la izquierda
         else if(pos = IZQUIERDA && (hermano->right)->color == RED) {
             sobrinoLejano = hermano->right;
             std::swap(hermano->color, (n->father)->color);
-            rotarDerecha(n->father);
+            rotarIzquierda(n->father);
             n->color = BLACK;
             sobrinoLejano->color = BLACK;
         }
+        
+        // Lo mismo pero en el caso que esté a la derecha
+        else if (pos = DERECHA && (hermano->left)->color == RED) {
+            sobrinoLejano = hermano->left;
+            // Cambiar el color entre padre y hermano
+            std::swap(hermano->color, (n->father)->color);
+            // Rotar al padre en dirección del DB
+            rotarDerecha(n->father);
+            // Volver el DB en negro
+            n->color = BLACK;
+            // Volver el sobrino lejano en negro
+            sobrinoLejano->color = BLACK;
+        }
     //==========================
-
     }
 
     //==========================
