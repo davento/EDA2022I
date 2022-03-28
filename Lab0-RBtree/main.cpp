@@ -30,9 +30,8 @@ int main() {
     int data;
     int eliminar;
 
-    cout<<"Creando RBTree...\n";
-
     cin>>n;
+    cout<<"Creando RBTree...\n";
     while(n--) {
         cin>>data;
         t.insertar(data);
@@ -40,9 +39,13 @@ int main() {
 
     printTraversals(t);
 
-    cin>>eliminar;
+    cin>>n;
     cout<<"Eliminando valor...\n";
-    t.eliminar(eliminar);
+    while(n--) {
+        cin>>data;
+        t.eliminar(data);
+    }
+    
     printTraversals(t);
 
     return 0;
