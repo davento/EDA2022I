@@ -9,13 +9,26 @@ void printVectorN(vector<Nodo*> v, string nombre) {
     cout<<"\n";
 }
 
+void printTraversals(RBtree t) {
+
+    vector<Nodo*> pre;
+    vector<Nodo*> in;
+    vector<Nodo*> pos;
+    
+    pre = t.preorder();
+    in = t.inorder();
+    pos = t.postorder();
+
+    printVectorN(pre, "Preorden");
+    printVectorN(in, "Inorder");
+    printVectorN(pos, "Postorder");
+}
+
 int main() {
     RBtree t;
     int n;
     int data;
-    vector<Nodo*> pre;
-    vector<Nodo*> in;
-    vector<Nodo*> pos;
+    int eliminar;
 
     cout<<"Creando RBTree...\n";
 
@@ -25,13 +38,12 @@ int main() {
         t.insertar(data);
     }
 
-    pre = t.preorder();
-    in = t.inorder();
-    pos = t.postorder();
+    printTraversals(t);
 
-    printVectorN(pre, "Preorden");
-    printVectorN(in, "Inorder");
-    printVectorN(pos, "Postorder");
+    cin>>eliminar;
+    cout<<"Eliminando valor...\n";
+    t.eliminar(eliminar);
+    printTraversals(t);
 
     return 0;
 }

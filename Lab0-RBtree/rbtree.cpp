@@ -246,13 +246,12 @@ std::vector<Nodo*> RBtree::postorder() {
 // Búsqueda binaria para encontrar un nodo
 Nodo* RBtree::buscarNodo(Nodo* &n, int d) {
     // si no se encuentra (no existe), devuelve un puntero nulo
-    if (n == nullptr) return nullptr;
+    if (n == nullptr || d == n->dato) return n;
     // si el dato es menor, va por la izquierda
     if (d < n->dato) buscarNodo(n->left, d);
     // si el dato es mayor, va por la derecha
     else if (n->dato < d) buscarNodo(n->right, d);   
     // retorna el nodo si lo encuentra
-    return n;
 }
 
 // Función para ubicar al sucesor inorder de un nodo
@@ -269,10 +268,10 @@ Nodo* RBtree::ubicarSucesor(Nodo* & n) {
 
 // Modificación del BST delete para RBTs
 // La idea es retornar el nodo que se va a eliminar
-Nodo* RBtree::eliminarBST(Nodo* & n, int d) {
+Nodo* RBtree::eliminarBST(int d) {
     
     // Primero ubicar el nodo
-    Nodo* v = buscarNodo(n, d);
+    Nodo* v = buscarNodo(root, d);
 
     // si el nodo no existe, no hay nada más que hacer
     if (v == nullptr) return v;
@@ -280,6 +279,7 @@ Nodo* RBtree::eliminarBST(Nodo* & n, int d) {
     if (v->left == nullptr && v->right == nullptr) return v;
     // si tiene que ser reemplazado, ubicar su sucesor (u)
     Nodo* u = ubicarSucesor(v);
+    std::cout<<"u ="<<u->dato<<", v ="<<v->dato<<std::endl;
     // reemplazar los datos del sucesor con los del nodo
     v->dato = u->dato;
     // si hay más desbalances por arreglar antes de eliminar,
@@ -452,7 +452,7 @@ void RBtree::liberarNodo(Nodo* & n) {
 
 void RBtree::eliminar(int d) {
     // Ubica el nodo a eliminar (v) empleando el BST delete
-    Nodo* v = eliminarBST(root, d);
+    Nodo* v = eliminarBST(d);
     // si el nodo no existe, no hay nada más que hacer
     if (v == nullptr) return;
     // si existe, evaluar cada caso para eliminar este nodo

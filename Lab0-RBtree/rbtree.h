@@ -39,7 +39,7 @@ private:
     void inorder(std::vector<Nodo*> &, Nodo*);
     void postorder(std::vector<Nodo*> &, Nodo*);
 
-    Nodo* eliminarBST(Nodo* &, int);
+    Nodo* eliminarBST(int);
     void identificarCaso(Nodo* &);
     void liberarNodo(Nodo* &);
     Nodo* buscarNodo(Nodo*&, int);
