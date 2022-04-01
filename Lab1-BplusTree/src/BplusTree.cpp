@@ -1,10 +1,13 @@
 #include "BplusTree.h"
 #define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
+#define INT_MAX std::numeric_limits<int>::max();
 
 Nodo::Nodo() {
     nChildren = nKeys = 0;
     father = next = nullptr;
-    isLeaf = 0;
+    isLeaf = true;
+    FOR(i,0,ORDER+1) children[i] = nullptr;
+    FOR(i,0,ORDER) keys[i] = INT_MAX;
 }
 
 // k y el nodo que sigue
