@@ -2,13 +2,16 @@
 #define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
 #define INT_MAX std::numeric_limits<int>::max();
 
-Nodo::Nodo() {
-    nChildren = nKeys = 0;
-    father = next = nullptr;
-    isLeaf = true;
-    FOR(i,0,ORDER+1) children[i] = nullptr;
-    FOR(i,0,ORDER) keys[i] = INT_MAX;
-}
+Nodo::Nodo() :
+nChildren(0),
+nKeys(0),
+father(nullptr),
+next(nullptr),
+isLeaf(true)
+{FOR(i,0,ORDER+1) children[i] = nullptr;
+{FOR(i,0,ORDER) keys[i] = INT_MAX;}}
+
+Nodo::~Nodo(){}
 
 // k y el nodo que sigue
 bool Nodo::insertarKey(int k, Nodo* n = nullptr) {
