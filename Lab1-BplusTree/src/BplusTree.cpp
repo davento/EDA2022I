@@ -112,11 +112,14 @@ void Nodo::reordenar() {
     for (i = 1; i < nKeys; i++) {
         keys[i-1] = keys[i];
         children[i-1] = children[i];
+        // asegurar que se ha establecido al padre correctamente
+        children[i-1]->father = this;
     }
     // ajustar el valor de más a la derecha
     children[i-1] = children[i-1];
     children[i];
     keys[nKeys-1] = INT_MAX;
+    children[i-1]->father = this;
     // se reduce una llave y un hijo producto del ajuste
     nKeys--;
     nChildren--;

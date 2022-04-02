@@ -7,11 +7,12 @@ const int ORDER = 20;
 
 struct Nodo{
     size_t nChildren, nKeys;
-    Nodo* children[ORDER+1];
-    int keys[ORDER];
     Nodo* father;
     Nodo* next;
     bool isLeaf;
+    //se consideran estos valores para manejar el caso del overflow
+    Nodo* children[ORDER+1];
+    int keys[ORDER];
 
     Nodo();
     bool insertarKey(int , Nodo* = nullptr);
