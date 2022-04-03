@@ -13,7 +13,7 @@ Nodo::Nodo() :
 
 Nodo::~Nodo(){}
 
-// k y el nodo que sigue
+// 
 bool Nodo::insertarKey(int k, Nodo* n) {
     // añadir una key más al nodo porque se le va a insertar un nuevo valor
     nKeys++;
@@ -43,41 +43,30 @@ bool Nodo::insertarKey(int k, Nodo* n) {
             // y también conectar con la hoja que sigue
             if(hijoHoja) children[i]->next = children[i+1];
         }
-
-        // 
-        if (nKeys == 1) nChildren += 2;
-        else nChildren++;
-
-        // si el nodo está lleno, retorna falso
-        // pues no se ha podido insertar en el nodo
-        if (nKeys == ORDER) return false;
-        // en caso sí se haya insertado, es verdadero
-        return true;
     }
+    // añadir hijos insertados
+    if (nKeys == 1) nChildren += 2;
+    else nChildren++;
+
+    // si el nodo está lleno, retorna falso
+    // pues no se ha podido insertar en el nodo
+    if (nKeys == ORDER) return false;
+    // en caso sí se haya insertado, es verdadero
+    return true;
 }
 
 // ubicar un nodo que contiene a k
 Nodo* Nodo::buscar(int k) {
-    // si el nodo está vacío, retornar nada
-    if (nKeys == 0) return nullptr;
-    // caso contrario, explorar todos las keys en el nodo
+    // si es una hoja, no hay más por explorar
+    if (isLeaf) return this;
+    // explorar todos las keys en el nodo
+    // y sus hijos
     FOR(i,0,nKeys) {
-        // bias a la derecha
-        if (k >= keys[i]) {
-            // si es que k es mayor que el elemento, explorar sus hijos
-            if (children[i+1]) return (children[i+1])->buscar(k);
-            // si contiene a k, retornar el mismo nodo
-            else if (k == keys[i]) return this;
-            else return nullptr;
-        }
-        // si es menor, explorar sus hijos
-        else if (k < keys[i]) {
+        if (k < keys[i]) {
             if (children[i]) return (children[i])->buscar(k);
-            else return nullptr;
         }
     }
-    // simplemente no está en este nodo
-    return nullptr;
+    return children[nKeys]->buscar(k);
 }
 
 // ubicar la hoja en la que se ubica un key
@@ -116,8 +105,8 @@ void Nodo::reordenar() {
         children[i-1]->father = this;
     }
     // ajustar el valor de más a la derecha
-    children[i-1] = children[i-1];
-    children[i];
+    children[i-1] = children[i];
+    children[i] = nullptr;
     keys[nKeys-1] = INT_MAX;
     children[i-1]->father = this;
     // se reduce una llave y un hijo producto del ajuste
@@ -130,7 +119,7 @@ Nodo* Nodo::partir() {
     Nodo* h = new Nodo();
     
     // ajustar los elementos del hermano
-    FOR(i,(ORDER-1)/2,ORDER) {
+    FOR(i,(ORDER)/2,ORDER) {
         // llenar al nuevo hermano con las keys
         // de la segunda mitad del nodo original
         h->insertarKey(keys[i]);
@@ -141,8 +130,8 @@ Nodo* Nodo::partir() {
         nKeys--;
     }
     // ajustar los hijos del hermano
-    FOR(i,(ORDER-1)/2 +1, ORDER+1) {
-        h->children[i - (ORDER-1)/2] = children[i];
+    FOR(i,(ORDER)/2 +1, ORDER+1) {
+        h->children[i - (ORDER)/2] = children[i];
         children[i] = nullptr;
         nChildren--;
     }
@@ -168,19 +157,13 @@ void Nodo::kill() {
 BplusTree::BplusTree() : root(new Nodo){}
 
 // dividir el nodo y establecer sus dependencias en el árbol
-Nodo* BplusTree::dividir(Nodo* n) {
+void BplusTree::dividir(Nodo* n) {
     // se divide el nodo en dos
     Nodo* h = n->partir();
     // si el nodo es una hoja, el nuevo también
     h->isLeaf = n->isLeaf;
-    // si existe un padre
-    if(n->father) {
-        // se actualiza el nexo con el nodo nuevo
-        h->father = n->father;
-        (n->father)->insertarKey(h->keys[0], h);
-    }
-    // caso contrario, se crea uno (un nivel arriba)
-    else {
+    // si no existe un padre, se crea uno (un nivel arriba)
+    if(!n->father) {
         // como se está haciendo un nivel superior
         Nodo* p = new Nodo();
         p->isLeaf = false;
@@ -196,6 +179,11 @@ Nodo* BplusTree::dividir(Nodo* n) {
         // si es hoja, se crea la conexión con el nuevo nodo en el linked list
         if (n->isLeaf) n->next = h;
     }
+    // caso contrario, se actualiza el nexo con el nodo nuevo
+    else {
+        h->father = n->father;
+        (n->father)->insertarKey(h->keys[0], h);
+    }
     // reordenar las keys si es que la referencia se movió con un nodo interno
     if(!h->isLeaf) h->reordenar();
     // si es hoja, se crea la conexión con el nuevo nodo en el linked list (por si existe un padre)
@@ -205,7 +193,9 @@ Nodo* BplusTree::dividir(Nodo* n) {
 }
 
 void BplusTree::insertar(int k) {
+    if(!root) root = new Nodo();
     Nodo* n = root->buscar(k);
+    if(!n->insertarKey(k)) dividir(n);
 }
 
 // imprimir en BFS
@@ -229,15 +219,17 @@ void BplusTree::print() {
     // ir hasta el primer nodo
     Nodo* f = root->buscarHoja(-1);
     // avanzar secuencialmente e ir imprimiendo
-    while(f) {
+    while(f->next) {
         f->print();
         std::cout<<" -> ";
         f = f->next;
     }
+    f->print();
+    std::cout<<std::endl;
 }
 
 void BplusTree::borrar(int k) {
-
+    // to do
 }
 
 BplusTree::~BplusTree() {root->kill();}

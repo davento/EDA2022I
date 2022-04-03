@@ -3,7 +3,7 @@
 
 #include<bits/stdc++.h>
 
-const int ORDER = 20;
+const int ORDER = 4;
 
 struct Nodo{
     size_t nChildren, nKeys;
@@ -29,7 +29,7 @@ class BplusTree
 {
     private:
         Nodo* root;
-        Nodo* dividir(Nodo *);
+        void dividir(Nodo *);
 
     public:
         BplusTree();
