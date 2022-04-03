@@ -2,41 +2,39 @@
 #define BPLUSTREE_H
 
 #include<bits/stdc++.h>
+#define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
+#define ORDER 20
 
-const int ORDER = 20;
-
-struct Nodo{
+struct Node{
     size_t nChildren, nKeys;
-    Nodo* father;
-    Nodo* next;
+    Node* father;
+    Node* next;
     bool isLeaf;
-    //se consideran estos valores para manejar el caso del overflow
-    Nodo* children[ORDER+1];
+    Node* children[ORDER+1];
     int keys[ORDER];
 
-    Nodo();
-    bool insertarKey(int , Nodo* = nullptr);
-    Nodo* buscar(int);
-    Nodo* buscarHoja(int);
-    void reordenar();
-    Nodo* partir();
-    void print();
-    void kill();
-    ~Nodo();
+    Node();
+    bool insertKey(int, Node* = nullptr);
+    Node* findNode(int);
+    void deleteDuplicate();
+    Node* splitNode();
+    void printNode();
+    void killNode();
+    ~Node();
 };
 
 class BplusTree
 {
     private:
-        Nodo* root;
-        void dividir(Nodo *);
+        Node* root;
+        void splitNode(Node *);
 
     public:
         BplusTree();
-        void insertar(int);
-        void borrar(int);
+        void insert(int);
+        void erase(int);
         void bfsPrint();
-        void print();
+        void linealPrint();
         ~BplusTree();
 };
 
