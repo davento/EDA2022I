@@ -3,7 +3,7 @@
 
 #include<bits/stdc++.h>
 
-const int ORDER = 4;
+const int ORDER = 20;
 
 struct Nodo{
     size_t nChildren, nKeys;

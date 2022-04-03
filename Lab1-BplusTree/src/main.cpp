@@ -34,4 +34,5 @@ int main() {
 
         delete tree;
     }
+    std::cout<<tiempoInseccion<<std::endl;
 }
