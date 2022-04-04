@@ -15,6 +15,11 @@ struct Node{
 
     Node();
     bool insertKey(int, Node* = nullptr);
+    void shiftKeys(size_t);
+    void shiftChildren();
+    int nextAvailableKey();
+    Node* findNode(int, int&);
+    bool eraseKey(int, int);
     Node* findNode(int);
     void deleteDuplicate();
     Node* splitNode();

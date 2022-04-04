@@ -33,6 +33,73 @@ bool Node::insertKey(int k, Node* n) {
 	return true;
 }
 
+void Node::shiftKeys(size_t i) {
+	for(i=0; i < nChildren; i++) {
+		//shift
+	}
+}
+
+void Node::shiftChildren() {
+
+}
+
+int Node::nextAvailableKey() {
+	FOR(i,0,nKeys-1) {
+		if(keys[i] == INT_MAX) return i;
+	}
+	return {};
+}
+
+Node* Node::findNode(int k, int& j) {
+	if(isLeaf) {
+		//locate what child it is and assign that to j
+		return this;
+	}
+	FOR(i,0,nKeys) {
+		if(k < keys[i] && children[i]) return children[i]->findNode(k);
+	}
+	return children[nKeys]->findNode(k);
+}
+
+bool Node::eraseKey(int k, int j) {
+	bool kFound = false;
+	// locate the key itself
+	size_t i;
+	for(i= 0; i < nKeys; i++) {
+		if(keys[i] == k) {
+			kFound = true;
+			break;
+		}
+	}
+	if (!kFound) return false;
+	keys[i] = INT_MAX;
+	if (i < nKeys-1) shiftKeys(i);
+	nKeys--;
+
+	if (nKeys < ceil(ORDER/2)-1) {
+		Node* s = nullptr;
+		//check if left sibling exists
+		if(j - 1 >= 1) s = father->children[j-1];
+		else {
+			//check if left uncle has a kid and pick that one as s
+		}
+		// if it does, check if it can borrow
+		if(s->nKeys > ceil(ORDER/2)) {
+			
+		}
+		// if it can't borrow, merge
+		else {
+			int x = s->nextAvailableKey();
+			FOR(y,0,ceil(ORDER/2)-1) {
+				s->keys[x] = keys[y];
+				keys[y] = INT_MAX;
+				x++; nKeys--; s->nKeys++;
+			}
+		}
+	}
+	return true;
+}
+
 Node* Node::findNode(int k) {
 	if(isLeaf) return this;
 	FOR(i,0,nKeys) {
@@ -131,7 +198,11 @@ void BplusTree::insert(int k) {
 }
 
 void BplusTree::erase(int k) {
-
+	// locate the node that has the key
+	int j = 0;
+	Node* n = root->findNode(k, j);
+	if (!n) return;
+	n->eraseKey(k, j);
 }
 
 void BplusTree::bfsPrint() {
