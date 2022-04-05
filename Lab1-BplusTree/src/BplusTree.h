@@ -5,9 +5,11 @@
 #define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
 #define ORDER 20
 
+enum Side {LEFT, RIGHT};
+
 struct Node{
     size_t nChildren, nKeys;
-    Node* father;
+    Node* parent;
     Node* next;
     bool isLeaf;
     Node* children[ORDER+1];
@@ -15,11 +17,11 @@ struct Node{
 
     Node();
     bool insertKey(int, Node* = nullptr);
-    void shiftKeys(size_t);
-    void shiftChildren();
-    int nextAvailableKey();
-    Node* findNode(int, int&);
-    bool eraseKey(int, int);
+    void shiftKeys(size_t, size_t, bool = LEFT);
+    void shiftChildren(bool = LEFT);
+    void updateKeys();
+    Node* findLeftSibling(bool&);
+    Node* findRightSibling(bool&);
     Node* findNode(int);
     void deleteDuplicate();
     Node* splitNode();
@@ -33,7 +35,8 @@ class BplusTree
     private:
         Node* root;
         void splitNode(Node *);
-
+        void eraseKeyLeaf(int, Node*);
+        void eraseKeyInner(int, Node*);
     public:
         BplusTree();
         void insert(int);
