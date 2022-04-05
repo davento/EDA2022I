@@ -45,19 +45,19 @@ INTERNAL DELETE(p):
   if p is the root and the root has one child:
     update the root as its child
     stop the procedure
-  while the minimum children condition is not met by n's parent:
+  while the minimum children condition is not met by p:
     if the left sibling s exists:
         if it can borrow:
             borrow children from s
             decrease the number of children in s by 1
-            update s's keys
+            update s's and p's keys
         if it can't:
             merge p onto s (by passing over the remaining children in p to the left of the already existing children in s)
             increase the number of children in s by the number of children passed over
-            update s's keys
             let temp be p
             set p as s
             delete temp
+            update p's keys
     else if the right sibling s exists:
         if it can borrow:
             borrow children from s
@@ -67,10 +67,10 @@ INTERNAL DELETE(p):
         if it can't:
             merge p onto s (by shifting s's children to the right and positioning the remaining children in p in the blank spaces)
             increase the number of children in s by the number of children passed over
-            update s's keys
             let temp be p
             set p as s
             delete temp
+            update p's keys
     update p as p's father
     run internal deletion for p
 ```
