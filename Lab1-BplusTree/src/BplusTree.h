@@ -3,7 +3,7 @@
 
 #include<bits/stdc++.h>
 #define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
-#define ORDER 20
+#define ORDER 4
 
 enum Side {LEFT, RIGHT};
 

@@ -104,22 +104,60 @@ void Node::updateKeys() {
 }
 
 void BplusTree::eraseKeyInner(Node* p) {
-	// if (p == nullptr) return;
-	// p->updateKeys();
-	// if (p == root && root->nChildren == 1) {
-	// 	root = root->children[0];
-	// 	return;
-	// }
-	// while(p->nChildren < ceil(ORDER/2)) {
-	// 	Node* s = p->findLeftSibling();
-	// 	if(s) {
-	// 	}
-	// 	else {
-	// 		s = p->findRightSibling();
-	// 	}
-	// }
-	// p = p->parent;
-	// eraseKeyInner(p);
+	if (p == nullptr) return;
+	p->updateKeys();
+	if (p == root && root->nChildren == 1) {
+		root = root->children[0];
+		return;
+	}
+	while(p->nChildren < ceil(ORDER/2)) {
+		Node* s = p->findLeftSibling();
+		if(s) {
+			if(s->nChildren - 1 > ceil(ORDER/2)) {
+				p->shiftChildren(0,1,RIGHT);
+				p->children[0] = s->children[s->nChildren-1];
+				s->children[s->nChildren-1] = nullptr;
+				s->nChildren--;
+				p->updateKeys();
+				s->updateKeys();
+			}
+			else {
+				FOR(i,0,p->nChildren) {
+					s->children[s->nChildren-1+i] = p->children[i];
+					p->children[i] = nullptr;
+				}
+				s->nChildren += p->nChildren;
+				Node* temp = p;
+				p = s;
+				p->updateKeys();
+				delete temp;
+			}
+		}
+		else {
+			s = p->findRightSibling();
+			if(s->nChildren - 1 > ceil(ORDER/2)) {
+				p->children[p->nChildren-1] = s->children[0];
+				s->shiftChildren(0,1,LEFT);
+				s->nChildren--;
+				p->updateKeys();
+				s->updateKeys();
+			}
+			else {
+				s->shiftChildren(0, p->nChildren, RIGHT);
+				FOR(i,0,p->nChildren) {
+					s->children[i] = p->children[i];
+					p->children[i] = nullptr;
+				}
+				s->nChildren += p->nChildren;
+				Node* temp = p;
+				p = s;
+				p->updateKeys();
+				delete temp;
+			}
+		}
+	}
+	p = p->parent;
+	eraseKeyInner(p);
 /*
   if p is null:
     stop the procedure
@@ -132,7 +170,7 @@ void BplusTree::eraseKeyInner(Node* p) {
         if it can borrow:
             borrow children from s
             decrease the number of children in s by 1
-            update s's keys
+            update p's and s's keys
         if it can't:
             merge p onto s (by passing over the remaining children in p to the left of the already existing children in s)
             increase the number of children in s by the number of children passed over
@@ -188,6 +226,7 @@ void BplusTree::eraseKeyLeaf(int k, Node* n) {
 				n->shiftKeys(0, ceil(ORDER/2)-1-n->nKeys, RIGHT);
 				FOR(y,0,ceil(ORDER/2)-1-n->nKeys) {
 					n->keys[y] = s->keys[s->nKeys-1-y];
+					s->keys[s->nKeys-1-y] = INT_MAX;
 				}
 				n->nKeys = ceil(ORDER/2)-1;
 				s->nKeys -= toBorrow;
@@ -223,6 +262,7 @@ void BplusTree::eraseKeyLeaf(int k, Node* n) {
 					// update n's and s's number of keys
 					FOR(y,0,ceil(ORDER/2)-1) {
 						n->keys[n->nKeys+y] = s->keys[y];
+						s->keys[y] = INT_MAX;
 					}
 					n->nKeys = ceil(ORDER/2)-1;
 					s->nKeys -= toBorrow;
