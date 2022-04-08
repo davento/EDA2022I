@@ -17,11 +17,11 @@ struct Node{
 
     Node();
     bool insertKey(int, Node* = nullptr);
-    void shiftKeys(size_t, size_t, bool = LEFT);
-    void shiftChildren(bool = LEFT);
+    void shiftKeys(size_t, size_t = 1, bool = LEFT);
+    void shiftChildren(size_t, size_t = 1, bool = LEFT);
     void updateKeys();
-    Node* findLeftSibling(bool&);
-    Node* findRightSibling(bool&);
+    Node* findLeftSibling();
+    Node* findRightSibling();
     Node* findNode(int);
     void deleteDuplicate();
     Node* splitNode();
@@ -36,7 +36,7 @@ class BplusTree
         Node* root;
         void splitNode(Node *);
         void eraseKeyLeaf(int, Node*);
-        void eraseKeyInner(int, Node*);
+        void eraseKeyInner(Node*);
     public:
         BplusTree();
         void insert(int);
