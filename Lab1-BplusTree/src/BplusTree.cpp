@@ -136,9 +136,9 @@ void BplusTree::eraseKeyInner(Node* p) {
         if it can't:
             merge p onto s (by passing over the remaining children in p to the left of the already existing children in s)
             increase the number of children in s by the number of children passed over
-            update s's keys
             let temp be p
             set p as s
+			update p's keys
             delete temp
     else if the right sibling s exists:
         if it can borrow:
@@ -149,9 +149,9 @@ void BplusTree::eraseKeyInner(Node* p) {
         if it can't:
             merge p onto s (by shifting s's children to the right and positioning the remaining children in p in the blank spaces)
             increase the number of children in s by the number of children passed over
-            update s's keys
             let temp be p
             set p as s
+			update p's keys
             delete temp
     update p as p's parent
     run internal deletion for p
