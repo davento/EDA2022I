@@ -32,6 +32,12 @@ int main() {
         auto tiempo = std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count();
         tiempoInseccion += tiempo;
 
+        // for(int i = 0; i<1000000; ++i) {
+        //     tree->erase(datos[i]);
+        // }
+
+        // if(tree->getRoot() == nullptr) std::cout<<"yeahhhhhhhhhhhh\n";
+
         delete tree;
     }
     std::cout<<tiempoInseccion<<std::endl;
