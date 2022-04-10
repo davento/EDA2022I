@@ -8,7 +8,7 @@ The general idea of this **bottom-up approach**, as explained in [this video](ht
 3. Borrow from right
 4. Merge with right
 
-> Note: This implementation treats cousins as siblings.
+> **Note:** This implementation treats cousins as siblings.
 
 ```
 DELETE(k):
@@ -47,6 +47,8 @@ DELETE(k):
     run internal deletion for p
 ```
 
+Same logic applies to the internal delete, but using children instead of keys.
+
 ```
 INTERNAL DELETE(p):
   if p is null:
@@ -82,3 +84,5 @@ INTERNAL DELETE(p):
     update p as p's father
     run internal deletion for p
 ```
+
+> **Disclaimer:** yes, I have noticed the implementation results on a heap-buffer-overflow when ran with a sanitizer and that it overall has issues with freeing pointers. Yes, this algorithm is not perfect and its pseudocode is stupidly long, really. But here goes my sad attempt at getting this done, which has been enough to help me feel as if I have gotten a bit of the weight off my shoulders from the things I associate this structure with. I will still try to fix it whenever I get the chance. I want to make sure I actually make up with myself for everything that happened in December 2020. For now, however, fly high, B+ Tree 🕊
