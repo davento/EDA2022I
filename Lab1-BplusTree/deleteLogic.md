@@ -1,3 +1,9 @@
+# Delete Logic
+
+Placing the entire pseudocode for the delete functions here not to clog the `.cpp` with comments.
+
+> Note: This implementation treats cousins as siblings.
+
 ```
 DELETE(k):
   locate leaf n that contains k
@@ -13,27 +19,25 @@ DELETE(k):
     let node p be n->parent
     if the left sibling s exists:
       if it can borrow:
-          have n borrow the maximum value keys it needs from s
+          have n borrow the maximum value key it needs from s
           update n's and s's number of keys
       if it can't:
           merge s and n by moving the remaining keys in n to s
-          if s is not the leftmost child:
-              shift the rest p's children to the left by 1
-          reduce number of children in p by 1
+          update s' number of keys
           update s->next as n->next
           delete n
+          if n was not the rightmost child:
+              shift the children located at its left to the left by 1
+          reduce number of children in p by 1
     else if the right sibling s exists:
       if it can borrow:
-          have n borrow the minimum value keys it needs from sibling
+          have n borrow the minimum value key it needs from s
           update n's and s's number of keys
       if it can't:
           merge s and n by moving the remaining keys in n to s
+          delete n
           shift the rest of p's children to the left by 1
-          if s comes from an uncle:
-              reduce the number of children in s's father
-              update n->next as s->next
-              set p as s's parent
-              delete s
+          reduce the number of children in s's father
     run internal deletion for p
 ```
 

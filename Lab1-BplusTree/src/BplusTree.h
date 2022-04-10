@@ -3,7 +3,9 @@
 
 #include<bits/stdc++.h>
 #define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
-#define ORDER 4
+#define ORDER 20
+#define MIN_CHILDREN ceil(ORDER/2)
+#define MIN_KEYS ceil(ORDER/2) - 1
 
 enum Side {LEFT, RIGHT};
 

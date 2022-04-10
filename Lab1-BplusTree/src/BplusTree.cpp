@@ -158,42 +158,6 @@ void BplusTree::eraseKeyInner(Node* p) {
 	}
 	p = p->parent;
 	eraseKeyInner(p);
-/*
-  if p is null:
-    stop the procedure
-  reset p's keys accordingly
-  if p is the root and the root has one child:
-    update the root as its child
-    stop the procedure
-  while the minimum children condition is not met by p:
-    if the left sibling s exists:
-        if it can borrow:
-            borrow children from s
-            decrease the number of children in s by 1
-            update p's and s's keys
-        if it can't:
-            merge p onto s (by passing over the remaining children in p to the left of the already existing children in s)
-            increase the number of children in s by the number of children passed over
-            let temp be p
-            set p as s
-			update p's keys
-            delete temp
-    else if the right sibling s exists:
-        if it can borrow:
-            borrow children from s
-            shift s's children to the left
-            reduce the number of children in s by 1
-            reset p's and s's keys accordingly
-        if it can't:
-            merge p onto s (by shifting s's children to the right and positioning the remaining children in p in the blank spaces)
-            increase the number of children in s by the number of children passed over
-            let temp be p
-            set p as s
-			update p's keys
-            delete temp
-    update p as p's parent
-    run internal deletion for p
-*/
 }
 
 void BplusTree::eraseKeyLeaf(int k, Node* n) {
@@ -206,83 +170,71 @@ void BplusTree::eraseKeyLeaf(int k, Node* n) {
 			break;
 		}
 	}
-	// if not found, abort the procedure
+	// if not found, stop the procedure
 	if (!kFound) return;
 	// if found, erase the key
 	n->keys[i] = INT_MAX;
 	// shift the remaining keys to the left
 	if (i < n->nKeys-1) n->shiftKeys(i, 1, LEFT);
 	n->nKeys--;
-	//if the number of keys condition is not met
-	if (n->nKeys < ceil(ORDER/2)-1) {
-		Node* s = nullptr;
+	if (n->nKeys < MIN_KEYS) {
 		Node* p = n->parent;
+		Node* s = nullptr;
 		// check if left sibling exists
 		s = n->findLeftSibling();
-		size_t toBorrow = ceil(ORDER/2)-n->nKeys;
+		size_t toBorrow = MIN_KEYS-(n->nKeys);
 		if (s) {
-			// if it does, check if it can borrow its sibling's maximum values
-			if(s->nKeys - toBorrow > ceil(ORDER/2)) {
-				n->shiftKeys(0, ceil(ORDER/2)-1-n->nKeys, RIGHT);
-				FOR(y,0,ceil(ORDER/2)-1-n->nKeys) {
-					n->keys[y] = s->keys[s->nKeys-1-y];
-					s->keys[s->nKeys-1-y] = INT_MAX;
-				}
-				n->nKeys = ceil(ORDER/2)-1;
-				s->nKeys -= toBorrow;
-			}
-			// if it can't borrow, merge
+			// if it does, check if it can borrow
+			if(s->nKeys - 1 > MIN_KEYS) {
+				n->shiftKeys(0, 1, RIGHT);
+				n->keys[0] = s->keys[s->nKeys-1];
+				s->keys[s->nKeys-1] = INT_MAX;
+				n->nKeys = MIN_KEYS;
+				s->nKeys--;
+			} // if not, merge s and n by moving the remaining keys in n to s
 			else {
-				// do the merging part
-				size_t x = s->nKeys-1;
-				FOR(y,0,ceil(ORDER/2)-1) {
-					s->keys[x] = n->keys[y];
-					x++;
-					s->nKeys++;
+				FOR(y,0,n->nKeys-1) {
+					s->keys[s->nKeys+y] = n->keys[y];
 				}
-				// shift the rest of p's children to the left by 1 if needed
-				if (!(n == p->children[p->nChildren-1])) {
+				s->nKeys += n->nKeys;
+				bool isRightmostChild = (n == p->children[p->nChildren-1]);
+				s->next = n->next;
+				delete n;
+				// if n is not the rightmost child,
+				if (!isRightmostChild) {
 					FOR(y,0,p->nChildren) {
+						// locate its position in the children array
 						if(p->children[y] == n) {
+							// and shift the children to its left to the left by 1
 							p->shiftChildren(y, 1, LEFT);
 							break;
 						}
 					}
 				}
 				p->nChildren--;
-				s->next = n->next;
-				delete n;
 			}
 		}
+		// check the right sibling. This only happens when n is the leftmost child
 		else {
 			s = n->findRightSibling();
 			if (s) {
-				if(s->nKeys - toBorrow > ceil(ORDER/2)) {
-					// have n borrow the minimum value keys it needs from sibling
-					// update n's and s's number of keys
-					FOR(y,0,ceil(ORDER/2)-1) {
-						n->keys[n->nKeys+y] = s->keys[y];
-						s->keys[y] = INT_MAX;
-					}
-					n->nKeys = ceil(ORDER/2)-1;
-					s->nKeys -= toBorrow;
-				}
+				// check if it can borrow
+				if(s->nKeys - 1 > MIN_KEYS) {
+					n->keys[n->nKeys] = s->keys[0];
+					s->shiftKeys(0,1,LEFT);
+					n->nKeys = MIN_KEYS;
+					s->nKeys--;
+				} // if not, merge s and n by moving the remaining keys in n to s
 				else {
-					// merge s and n by moving the remaining keys in n to s
 					s->shiftKeys(0, n->nKeys, RIGHT);
 					FOR(y,0,n->nKeys) {
 						s->keys[y] = s->keys[y];
-						s->nKeys++;
 					}
-          			// shift the rest of p's children to the left by 1
-					FOR(y,0,p->nChildren) {
-						if(p->children[y] == n) {
-							p->shiftChildren(y, 1, LEFT);
-							break;
-						}
-					}
-					p->nChildren--;
+					s->nKeys += n->nKeys;
 					delete n;
+					// index = 0 because n was the leftmost child
+					p->shiftChildren(0,1,LEFT);
+					p->nChildren--;
 				}
 			}
 		}
