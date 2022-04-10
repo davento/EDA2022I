@@ -2,6 +2,12 @@
 
 Placing the entire pseudocode for the delete functions here not to clog the `.cpp` with comments.
 
+The general idea, as explained in [this video](https://www.youtube.com/watch?v=QrbaQDSuxIM), is to try things in the following order:
+1. Borrow from left
+2. Merge with left
+3. Borrow from right
+4. Merge with right
+
 > Note: This implementation treats cousins as siblings.
 
 ```
@@ -53,7 +59,6 @@ INTERNAL DELETE(p):
     if the left sibling s exists:
         if it can borrow:
             borrow children from s
-            decrease the number of children in s by 1
             update s's and p's keys
         if it can't:
             merge p onto s (by passing over the remaining children in p to the left of the already existing children in s)
@@ -66,7 +71,6 @@ INTERNAL DELETE(p):
         if it can borrow:
             borrow children from s
             shift s's children to the left
-            reduce the number of children in s by 1
             reset p's and s's keys accordingly
         if it can't:
             merge p onto s (by shifting s's children to the right and positioning the remaining children in p in the blank spaces)

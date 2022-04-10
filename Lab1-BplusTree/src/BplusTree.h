@@ -3,7 +3,7 @@
 
 #include<bits/stdc++.h>
 #define FOR(i,a,b) for(size_t i=(a);i<(b);i++)
-#define ORDER 20
+#define ORDER 4
 #define MIN_CHILDREN ceil(ORDER/2)
 #define MIN_KEYS ceil(ORDER/2) - 1
 
@@ -19,8 +19,8 @@ struct Node{
 
     Node();
     bool insertKey(int, Node* = nullptr);
-    void shiftKeys(size_t, size_t = 1, bool = LEFT);
-    void shiftChildren(size_t, size_t = 1, bool = LEFT);
+    void shiftKeys(size_t, bool, size_t = 1);
+    void shiftChildren(size_t, bool, size_t = 1);
     void updateKeys();
     Node* findLeftSibling();
     Node* findRightSibling();

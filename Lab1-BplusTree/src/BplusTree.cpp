@@ -33,7 +33,7 @@ bool Node::insertKey(int k, Node* n) {
 	return true;
 }
 
-void Node::shiftKeys(size_t index, size_t distance, bool direction) {
+void Node::shiftKeys(size_t index, bool direction, size_t distance) {
 	if(direction == LEFT) {
 		FOR(i,index,nKeys) {
 			keys[i] = keys[i+distance];
@@ -46,14 +46,14 @@ void Node::shiftKeys(size_t index, size_t distance, bool direction) {
 	}
 }
 
-void Node::shiftChildren(size_t index, size_t distance, bool direction) {
+void Node::shiftChildren(size_t index, bool direction, size_t distance) {
 	if (direction == LEFT) {
 		FOR(i,index,nChildren) {
 			children[i] = children[i+distance];
 		}
 	}
 	if (direction == RIGHT) {
-		for(int i = nChildren-2; i > 0; i--) {
+		for(int i = nChildren-1; i > -1; i--) {
 			children[i+distance] = children[i];
 		}
 	}
@@ -107,43 +107,48 @@ void BplusTree::eraseKeyInner(Node* p) {
 	if (p == nullptr) return;
 	p->updateKeys();
 	if (p == root && root->nChildren == 1) {
+		Node* temp = root;
 		root = root->children[0];
+		delete temp;
 		return;
 	}
-	while(p->nChildren < ceil(ORDER/2)) {
+	while(p->nChildren < MIN_CHILDREN) {
 		Node* s = p->findLeftSibling();
-		if(s) {
-			if(s->nChildren - 1 > ceil(ORDER/2)) {
-				p->shiftChildren(0,1,RIGHT);
+		if(s) { //borrow children
+			if(s->nChildren - 1 > MIN_CHILDREN) {
+				p->shiftChildren(0,RIGHT);
 				p->children[0] = s->children[s->nChildren-1];
 				s->children[s->nChildren-1] = nullptr;
+				p->nChildren++;
 				s->nChildren--;
 				p->updateKeys();
 				s->updateKeys();
 			}
-			else {
+			else { //merge p onto s (by passing over the remaining children in p to the left of the already existing children in s)
 				FOR(i,0,p->nChildren) {
-					s->children[s->nChildren-1+i] = p->children[i];
+					s->children[s->nChildren+i] = p->children[i];
 					p->children[i] = nullptr;
 				}
 				s->nChildren += p->nChildren;
 				Node* temp = p;
 				p = s;
-				p->updateKeys();
 				delete temp;
+				p->updateKeys();
 			}
 		}
 		else {
 			s = p->findRightSibling();
-			if(s->nChildren - 1 > ceil(ORDER/2)) {
-				p->children[p->nChildren-1] = s->children[0];
-				s->shiftChildren(0,1,LEFT);
+			// check if it can borrow children
+			if(s->nChildren - 1 > MIN_CHILDREN) {
+				p->children[p->nChildren] = s->children[0];
+				s->shiftChildren(0,LEFT);
+				p->nChildren++;
 				s->nChildren--;
 				p->updateKeys();
 				s->updateKeys();
 			}
-			else {
-				s->shiftChildren(0, p->nChildren, RIGHT);
+			else { //merge p onto s (by shifting s's children to the right and positioning the remaining children in p in the blank spaces)
+				s->shiftChildren(0,RIGHT,p->nChildren);
 				FOR(i,0,p->nChildren) {
 					s->children[i] = p->children[i];
 					p->children[i] = nullptr;
@@ -151,8 +156,8 @@ void BplusTree::eraseKeyInner(Node* p) {
 				s->nChildren += p->nChildren;
 				Node* temp = p;
 				p = s;
-				p->updateKeys();
 				delete temp;
+				p->updateKeys();
 			}
 		}
 	}
@@ -175,18 +180,17 @@ void BplusTree::eraseKeyLeaf(int k, Node* n) {
 	// if found, erase the key
 	n->keys[i] = INT_MAX;
 	// shift the remaining keys to the left
-	if (i < n->nKeys-1) n->shiftKeys(i, 1, LEFT);
+	if (i < n->nKeys-1) n->shiftKeys(i, LEFT);
 	n->nKeys--;
 	if (n->nKeys < MIN_KEYS) {
 		Node* p = n->parent;
 		Node* s = nullptr;
 		// check if left sibling exists
 		s = n->findLeftSibling();
-		size_t toBorrow = MIN_KEYS-(n->nKeys);
 		if (s) {
 			// if it does, check if it can borrow
 			if(s->nKeys - 1 > MIN_KEYS) {
-				n->shiftKeys(0, 1, RIGHT);
+				n->shiftKeys(0, RIGHT);
 				n->keys[0] = s->keys[s->nKeys-1];
 				s->keys[s->nKeys-1] = INT_MAX;
 				n->nKeys = MIN_KEYS;
@@ -206,7 +210,7 @@ void BplusTree::eraseKeyLeaf(int k, Node* n) {
 						// locate its position in the children array
 						if(p->children[y] == n) {
 							// and shift the children to its left to the left by 1
-							p->shiftChildren(y, 1, LEFT);
+							p->shiftChildren(y,LEFT);
 							break;
 						}
 					}
@@ -217,25 +221,24 @@ void BplusTree::eraseKeyLeaf(int k, Node* n) {
 		// check the right sibling. This only happens when n is the leftmost child
 		else {
 			s = n->findRightSibling();
-			if (s) {
-				// check if it can borrow
-				if(s->nKeys - 1 > MIN_KEYS) {
-					n->keys[n->nKeys] = s->keys[0];
-					s->shiftKeys(0,1,LEFT);
-					n->nKeys = MIN_KEYS;
-					s->nKeys--;
-				} // if not, merge s and n by moving the remaining keys in n to s
-				else {
-					s->shiftKeys(0, n->nKeys, RIGHT);
-					FOR(y,0,n->nKeys) {
-						s->keys[y] = s->keys[y];
-					}
-					s->nKeys += n->nKeys;
-					delete n;
-					// index = 0 because n was the leftmost child
-					p->shiftChildren(0,1,LEFT);
-					p->nChildren--;
+			// check if it can borrow
+			if(s->nKeys - 1 > MIN_KEYS) {
+				n->keys[n->nKeys] = s->keys[0];
+				s->shiftKeys(0,LEFT);
+				s->keys[s->nKeys-1] = INT_MAX;
+				n->nKeys = MIN_KEYS;
+				s->nKeys--;
+			} // if not, merge s and n by moving the remaining keys in n to s
+			else {
+				s->shiftKeys(0, RIGHT, n->nKeys);
+				FOR(y,0,n->nKeys) {
+					s->keys[y] = s->keys[y];
 				}
+				s->nKeys += n->nKeys;
+				delete n;
+				// index = 0 because n was the leftmost child
+				p->shiftChildren(0,LEFT);
+				p->nChildren--;
 			}
 		}
 		eraseKeyInner(p);
