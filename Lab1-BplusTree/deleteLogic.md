@@ -2,7 +2,7 @@
 
 Placing the entire pseudocode for the delete functions here not to clog the `.cpp` with comments.
 
-The general idea, as explained in [this video](https://www.youtube.com/watch?v=QrbaQDSuxIM), is to try things in the following order:
+The general idea of this **bottom-up approach**, as explained in [this video](https://www.youtube.com/watch?v=QrbaQDSuxIM), is to try things in the following order:
 1. Borrow from left
 2. Merge with left
 3. Borrow from right
