@@ -41,6 +41,7 @@ class BplusTree
         void eraseKeyInner(Node*);
     public:
         BplusTree();
+        Node* getRoot() { return root;}
         void insert(int);
         void erase(int);
         void bfsPrint();
